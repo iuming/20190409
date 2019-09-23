@@ -11,4 +11,7 @@ In the first part, I will introduce the dynamic event tree. Then, based on the d
     >>>Branch: A direct link between two nodes that reflects the path of system state transitions due to the occurrence of an event.       
     >>>Absorbed state (final state): The special system state, the system state corresponding to the leaf nodes in the DET tree structure, indicating the final evolution of the system, which may be an accident or a safety.       
     >>>Evolution path: A collection of branches (or nodes) that evolve from one node to another.       
-    >>>Evolution time: The time it takes to evolve from one node to another.      
+    >>>Evolution time: The time it takes to evolve from one node to another.       
+ 
+    Because DET generates huge branch data in practical applications, it is often analyzed hierarchically for specific systems. First, the system is divided into multiple independent subsystems. The subsystems are divided into different components, and each component is divided into multiple parts. Components and so on. Combined with the specific human factors operation and related environmental impacts, the simulation operation is performed from the bottom up, and finally the security risk data of the whole system is obtained. That is to say, when DET modeling is performed for a specific system, it is usually not only a tree is established, but multiple DETs are established, and finally the final evolution data is obtained by the classification aggregation method.               
+**Evolution process:**      
