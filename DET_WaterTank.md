@@ -106,12 +106,12 @@ Because DET generates huge branch data in practical applications, it is often an
    k store the number of newly generated nodes per step:`k=0`     
    y record the total number of nodes (including the root node):`y=1`     
    If the valve state of the initial state (root node) is all invalid, the program is terminated:
-    ```     
+   ```     
     if globals()[str(a)]['failure1']==1 and globals()[str(a)]['failure2']==1 and globals()[str(a)]['failure3']==1:
         pass
-    ```    
+   ```    
    If the valve of the current state (parent node) is not fully invalid, calculate the child node in the case where the valve does not fail in the next state:       
-    ```    
+   ```    
     if globals()[str(a)]['failure1']==0 or globals()[str(a)]['failure2']==0 or globals()[str(a)]['failure3']==0:
         a.append(str(0))
         k=k+1
@@ -122,9 +122,9 @@ Because DET generates huge branch data in practical applications, it is often an
         probability(globals()[str(a)],c)
         globals()['d'+str(y-1)]=deepcopy(a)
         a=deepcopy(b)
-    ```
+   ```
    If the valve 1 of the current state (parent node) does not fail, calculate the child node in the case where the valve 1 fails in the next state:      
-    ```
+   ```
     if globals()[str(a)]['failure1']==0:
         a.append(str(1))
         k=k+1
@@ -137,9 +137,9 @@ Because DET generates huge branch data in practical applications, it is often an
         probability(globals()[str(a)], c)
         globals()['d' + str(y - 1)] = deepcopy(a)
         a=deepcopy(b)
-    ```
+   ```
    If the valve 2 of the current state (parent node) does not fail, calculate the child node in the case where the valve 2 fails in the next state:      
-    ```
+   ```
     if globals()[str(a)]['failure2']==0:
         a.append(str(2))
         k=k+1
@@ -152,9 +152,9 @@ Because DET generates huge branch data in practical applications, it is often an
         probability(globals()[str(a)], c)
         globals()['d' + str(y - 1)] = deepcopy(a)
         a=deepcopy(b)
-    ```
+   ```
    If the valve 3 of the current state (parent node) does not fail, calculate the child node in the case where the valve 3 fails in the next state:      
-    ```
+   ```
     if globals()[str(a)]['failure3']==0:
         a.append(str(3))
         k=k+1
@@ -167,18 +167,18 @@ Because DET generates huge branch data in practical applications, it is often an
         probability(globals()[str(a)], c)
         globals()['d' + str(y - 1)] = deepcopy(a)
         a = deepcopy(b)
-    ```
+   ```
    Initialize the cumulative probability of different accidents:
-    ```
+   ```
     cp1=0.0
     cp2=0.0
     cp3=0.0
     cp4=0.0
     cp1, cp2, cp3, cp4 = cumulative(k, y, cp1, cp2, cp3, cp4)
-    ```
+   ```
    Open the storage file:`fo = open("foo.txt", "w")`       
-   Loop through the tree-building function and calculate the cumulative probability function to build a dynamic event tree:
-    ```
+   Loop through the tree-building function and calculate the cumulative probability function to build a dynamic event tree:      
+   ```
     for q in range(19):
         k, y = tree(k, y)
         cp1, cp2, cp3, cp4 = cumulative(k, y, cp1, cp2, cp3, cp4)
@@ -189,38 +189,56 @@ Because DET generates huge branch data in practical applications, it is often an
         fo.write(str(cp2) + ' ')
         fo.write(str(cp3) + ' ')
         fo.write(str(cp4) + '\n')
-    ```
-   Write the result of the calculation to the output file:
    ```
-   p=1
-i1=0
-i2=0
-i3=0
-i4=0
-i5=0
-while p < y:
-    # print('d' + str(p),''.join(vars()['d' + str(p)]),vars()[str(vars()['d' + str(p)])])
-    if globals()[str(globals()['d' + str(p)])]['level']>3:# 求四种事故状态的节点数
-        i1=i1+globals()[str(globals()['d' + str(p)])]['probability']
-    if globals()[str(globals()['d' + str(p)])]['level']<=-3:
-        i2=i2+globals()[str(globals()['d' + str(p)])]['probability']
-    if (globals()[str(globals()['d' + str(p)])]['valve1']==-1 and globals()[str(globals()['d' + str(p)])]['valve2'] ==-1 \
-            and globals()[str(globals()['d' + str(p)])]['valve3'] == -1 and globals()[str(globals()['d' + str(p)])]['level']<=3\
-            and globals()[str(globals()['d' + str(p)])]['level']>-3) or (globals()[str(globals()['d' + str(p)])]['failure1']==1 and globals()[str(globals()['d' + str(p)])]['failure2'] ==1 \
-            and globals()[str(globals()['d' + str(p)])]['failure3'] == 1): #如果没有干涸或溢出，但是阀门全关或全部失效，要通过下面的判断统计它们水位分布于各个区间内的概率
-        if -3 < globals()[str(globals()['d' + str(p)])]['level'] <= -0.99:
-            i3 = i3 + globals()[str(globals()['d' + str(p)])]['probability']
-        if -0.99 < globals()[str(globals()['d' + str(p)])]['level'] <= 0.99:
-            i4 = i4 + globals()[str(globals()['d' + str(p)])]['probability']
-        if 0.99 < globals()[str(globals()['d' + str(p)])]['level'] <= 3:
-            i5 = i5 + globals()[str(globals()['d' + str(p)])]['probability']
+   Write the result of the calculation to the output file:      
+   ```
+    p=1
+    i1=0
+    i2=0
+    i3=0
+    i4=0
+    i5=0
+    while p < y:
+        # print('d' + str(p),''.join(vars()['d' + str(p)]),vars()[str(vars()['d' + str(p)])])
+        if globals()[str(globals()['d' + str(p)])]['level']>3:# 求四种事故状态的节点数
+            i1=i1+globals()[str(globals()['d' + str(p)])]['probability']
+        if globals()[str(globals()['d' + str(p)])]['level']<=-3:
+            i2=i2+globals()[str(globals()['d' + str(p)])]['probability']
+        if (globals()[str(globals()['d' + str(p)])]['valve1']==-1 and globals()[str(globals()['d' + str(p)])]['valve2'] ==-1 and globals()[str(globals()['d' + str(p)])]['valve3'] == -1 and globals()[str(globals()['d' + str(p)])]['level']<=3 and globals()[str(globals()['d' + str(p)])]['level']>-3) or (globals()[str(globals()['d' + str(p)])]['failure1']==1 and globals()[str(globals()['d' + str(p)])]['failure2'] ==1 and globals()[str(globals()['d' + str(p)])]['failure3'] == 1): 
+            if -3 < globals()[str(globals()['d' + str(p)])]['level'] <= -0.99:
+                i3 = i3 + globals()[str(globals()['d' + str(p)])]['probability']
+            if -0.99 < globals()[str(globals()['d' + str(p)])]['level'] <= 0.99:
+                i4 = i4 + globals()[str(globals()['d' + str(p)])]['probability']
+            if 0.99 < globals()[str(globals()['d' + str(p)])]['level'] <= 3:
+                i5 = i5 + globals()[str(globals()['d' + str(p)])]['probability']
 
-    fo.write(str('d' + str(p))+' ')
-    fo.write(str(''.join(vars()['d' + str(p)]))+' ')
-    fo.write(str(vars()[str(vars()['d' + str(p)])])+'\n')
-    p=p+1
+        fo.write(str('d' + str(p))+' ')
+        fo.write(str(''.join(vars()['d' + str(p)]))+' ')
+        fo.write(str(vars()[str(vars()['d' + str(p)])])+'\n')
+        p=p+1
    ```
-    
+   The probability that the water level of those nodes that have reached the simulation time and has not failed is distributed in each interval(The value of p and the corresponding control conditions need to be manually set. The value of p is the total number of nodes corresponding to the first node of the last generation node, and the upper limit of p is the label corresponding to the last node.):        
+   ```
+    p=5483
+    while 5483<=p<=6247:
+        if not(globals()[str(globals()['d' + str(p)])]['valve1'] == -1 and globals()[str(globals()['d' + str(p)])]['valve2'] == -1 and globals()[str(globals()['d' + str(p)])]['valve3'] == -1 and globals()[str(globals()['d' + str(p)])]['level'] <= 3 and globals()[str(globals()['d' + str(p)])]['level'] > -3) and not (globals()[str(globals()['d' + str(p)])]['failure1'] == 1 and globals()[str(globals()['d' + str(p)])]['failure2'] == 1 and globals()[str(globals()['d' + str(p)])]['failure3'] == 1):
+            if -3<globals()[str(globals()['d' + str(p)])]['level']<=-0.99:
+                i3=i3+globals()[str(globals()['d' + str(p)])]['probability']
+            if -0.99<globals()[str(globals()['d' + str(p)])]['level']<=0.99:
+                i4=i4+globals()[str(globals()['d' + str(p)])]['probability']
+            if 0.99<globals()[str(globals()['d' + str(p)])]['level']<=3:
+                i5=i5+globals()[str(globals()['d' + str(p)])]['probability']
+        p = p + 1
+   ```
+   Close the output file:`fo.close()`    
+   Output the total number of nodes in different ranges:      
+   ```
+    print('Greater than 3m',i1)
+    print('Less than 3m',i2)
+    print('-1~-3',i3)
+    print('-1~1',i4)
+    print('1~3',i5)
+   ```
 
 **Complete code:**     
 ```
