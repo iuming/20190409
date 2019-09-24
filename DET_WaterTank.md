@@ -249,11 +249,11 @@ def tree(k,y):
     i3=0
     i4=0
     i5=0
-    i=1 #循环控制变量
-    x=k #上一代新增节点数，k记录上一代新增节点数
-    k=0 #k重置
-    y1=y #y1代表上一代总节点数+1
-    while (y-x-k+(i-1))<y1 : #该控制条件表示遍历上一代所有节点
+    i=1 #Loop control variable
+    x=k #Number of nodes added in the previous generation, k records the number of new nodes in the previous generation
+    k=0 #k reset
+    y1=y #Y1 represents the total number of nodes in the previous generation +1
+    while (y-x-k+(i-1))<y1 : #This control condition represents traversing all nodes of the previous generation.
         if globals()[str(globals()['d' + str(y-x-k+(i-1))])]['level']>=3 or \
                 globals()[str(globals()['d' + str(y-x-k+(i-1))])]['level']<=-3:
             i=i+1
@@ -279,27 +279,27 @@ def tree(k,y):
         fo.write(str(i3) + ' ')
         fo.write(str(i4) + ' ')
         fo.write(str(i5) + '\n ')
-        a=deepcopy(globals()['d'+str(y-x-k+(i-1))]) #设置父节点对应的字典名
-        b=deepcopy(a)#存储父节点对应的字典名，b在单次循环中的值是不会改变的，始终是父节点的字典名
-        c=deepcopy(globals()[str(globals()['d' + str(y-x-k+(i-1))])])# 存储父节点对应的字典，功能同C
+        a=deepcopy(globals()['d'+str(y-x-k+(i-1))]) #Set the dictionary name corresponding to the parent node
+        b=deepcopy(a)#Store the dictionary name corresponding to the parent node. The value of b in a single loop will not change. It is always the dictionary name of the parent node.
+        c=deepcopy(globals()[str(globals()['d' + str(y-x-k+(i-1))])])# Store the dictionary corresponding to the parent node, function the same as C
 
         if globals()[str(a)]['failure1'] == 0 or globals()[str(a)]['failure2'] == 0 or globals()[str(a)]['failure3'] == 0:
-            a.append(str(0)) #在父节点的以列表表示的字典名后增加一个元素，表示子节点的字典名
+            a.append(str(0)) #Add an element after the dictionary name of the parent node in the list, indicating the dictionary name of the child node
             k = k + 1
             y=y+1
-            globals()[str(a)] = deepcopy(c) #给新的字典名赋一个和父节点相同的字典
-            control(globals()[str(a)])#依据父节点采取控制策略
-            level(globals()[str(a)]) #依据父节点计算水位
-            probability(globals()[str(a)], globals()[str(globals()['d' + str(y - x - k + (i - 1))])])#依据父节点计算概率
-            globals()['d' + str(y - 1)] = deepcopy(a) #把字典名赋给记录节点数的变量
-            a = deepcopy(b)#还原成父节点的字典名
+            globals()[str(a)] = deepcopy(c) #Assign a dictionary with the same name as the parent node for the new dictionary name
+            control(globals()[str(a)])#Take control strategy based on parent node
+            level(globals()[str(a)]) #Calculate the water level based on the parent node
+            probability(globals()[str(a)], globals()[str(globals()['d' + str(y - x - k + (i - 1))])])#Calculate probability based on parent node
+            globals()['d' + str(y - 1)] = deepcopy(a) #Assign the dictionary name to the variable of the number of record nodes
+            a = deepcopy(b)#Restore to the dictionary name of the parent node
         if globals()[str(a)]['failure1'] == 0:
             a.append(str(1))
             k = k + 1
             y=y+1
             globals()[str(a)] = deepcopy(c)
             globals()[str(a)]['failure1'] = 1
-            globals()[str(a)]['valve1'] = -1 * globals()[str(a)]['valve1']#如果接收器是好的，那么就对接收器进行失效
+            globals()[str(a)]['valve1'] = -1 * globals()[str(a)]['valve1']#If the receiver is good, then the receiver is disabled.
             control(globals()[str(a)])
             level(globals()[str(a)])
             probability(globals()[str(a)], globals()[str(globals()['d' + str(y - x - k + (i - 1))])])
@@ -332,7 +332,7 @@ def tree(k,y):
         i=i+1
 
     return k,y
-def control(name):# 控制策略
+def control(name):# Control Strategy
     if -1 < name['level'] <1:
         pass
         name['valve1'] = 1 * (name['valve1'] ** name['failure1']) * (1) ** name['failure1']
@@ -347,50 +347,49 @@ def control(name):# 控制策略
         name['valve2'] = 1 * (name['valve2'] ** name['failure2']) * (1) ** name['failure2']
         name['valve3'] = -1 * (name['valve3'] ** name['failure3']) * (-1) ** name['failure3']
     return name
-def level(name):#水位计算
+def level(name):#Water level calculation
     name['level'] =round(name['level'] + 1.0 * float(not (not (name['valve1'] + 1))) + 0.5* float(not (not (name['valve2'] + 1))) \
         - 1.2 * float(not (not (name['valve3'] + 1))),2)
     return name
-def probability(name, prename):#概率计算
+def probability(name, prename):#Probability calculation
     name['probability'] = prename['probability'] * (0.99 ** (3 - name['failure1'] - name['failure2'] - name['failure3'])) * \
                      (0.01 ** ((name['failure1'] + name['failure2'] + name['failure3']) - (
                              prename['failure1'] + prename['failure2'] + prename['failure3'])))
     return name
-def cumulative(k,y,cp1,cp2,cp3,cp4):# 计算累积概率
-    i = 1  # 循环控制变量
-    x = k  # 上一代新增节点数，k记录上一代新增节点数
-    k = 0  # k重置
+def cumulative(k,y,cp1,cp2,cp3,cp4):# Calculate cumulative probability
+    i = 1  # Loop control variable
+    x = k  # Number of nodes added in the previous generation, k records the number of new nodes in the previous generation
+    k = 0  # k reset
     y1 = y
 
     while (y - x - k + (i - 1)) < y1:
         if globals()[str(globals()['d' + str(y-x-k+(i-1))])]['level']>=3:#溢出事故
-            cp1=globals()[str(globals()['d' + str(y-x-k+(i-1))])]['probability']+cp1 #只要
-        if globals()[str(globals()['d' + str(y-x-k+(i-1))])]['level']<=-3:#干涸事故
+            cp1=globals()[str(globals()['d' + str(y-x-k+(i-1))])]['probability']+cp1 
+        if globals()[str(globals()['d' + str(y-x-k+(i-1))])]['level']<=-3:#Cognac accident
             cp2=globals()[str(globals()['d' + str(y-x-k+(i-1))])]['probability']+cp2
         if globals()[str(globals()['d' + str(y-x-k+(i-1))])]['valve1']==-1 and \
                 globals()[str(globals()['d' + str(y-x-k+(i-1))])]['valve2']==-1 and \
-                globals()[str(globals()['d' + str(y - x - k + (i - 1))])]['valve3'] == -1:#三个阀门全部关闭
+                globals()[str(globals()['d' + str(y - x - k + (i - 1))])]['valve3'] == -1:#All three valves are closed
             cp3=globals()[str(globals()['d' + str(y-x-k+(i-1))])]['probability']+cp3
         if globals()[str(globals()['d' + str(y - x - k + (i - 1))])]['failure1'] == 1 and \
                 globals()[str(globals()['d' + str(y - x - k + (i - 1))])]['failure2'] == 1 \
-                and globals()[str(globals()['d' + str(y - x - k + (i - 1))])]['failure3'] == 1:# 三个信号接收器全部失效
+                and globals()[str(globals()['d' + str(y - x - k + (i - 1))])]['failure3'] == 1:# All three signal receivers fail
             cp4 = globals()[str(globals()['d' + str(y - x - k + (i - 1))])]['probability'] + cp4
         i=i+1
-    print('溢出=',cp1)
-    print('干涸=',cp2)
-    print('无法冷却=',cp3)
-    print('全部失效=',cp4)
+    print('overflow=',cp1)
+    print('Dry up=',cp2)
+    print('Unable to cool=',cp3)
+    print('All failed=',cp4)
     return cp1,cp2,cp3,cp4
-#上述函数推导另见
 
 
-a=['A',str(0)]# 初始化节点名
+a=['A',str(0)]# Initialize the node name
 globals()[str(a)]={'valve1': 1, 'failure1': 0, 'valve2': -1, 'failure2': 0, 'valve3': 1, 'failure3': 0, 'level':0,
-      'probability': 1}#初始化节点名对应的节点内容
-b=deepcopy(a) #初始化程序计算中需要保留的父节点名
-c=deepcopy(globals()[str(a)])# 初始化需要保留的父节点字典
-k=0 #k存储每一步长新生成的节点数
-y=1#记录总节点数（包括根节点）
+      'probability': 1}#Initialize the node content corresponding to the node name
+b=deepcopy(a) #The name of the parent node that needs to be reserved in the initialization program calculation
+c=deepcopy(globals()[str(a)])# Initialize the parent node dictionary that needs to be preserved
+k=0 #k store the number of newly generated nodes per step
+y=1#Record the total number of nodes (including the root node)
 if globals()[str(a)]['failure1']==1 and globals()[str(a)]['failure2']==1 and globals()[str(a)]['failure3']==1:
     pass
 if globals()[str(a)]['failure1']==0 or globals()[str(a)]['failure2']==0 or globals()[str(a)]['failure3']==0:
@@ -439,7 +438,7 @@ if globals()[str(a)]['failure3']==0:
     probability(globals()[str(a)], c)
     globals()['d' + str(y - 1)] = deepcopy(a)
     a = deepcopy(b)
-#初始化不同事故的累积概率
+#Initialize the cumulative probability of different accidents
 cp1=0.0
 cp2=0.0
 cp3=0.0
@@ -448,7 +447,7 @@ cp1, cp2, cp3, cp4 = cumulative(k, y, cp1, cp2, cp3, cp4)
 
 fo = open("foo.txt", "w")
 
-for q in range(19):#循环调用建树函数tree和计算累积概率的函数cumulative
+for q in range(19):#Loop call to build function and function to calculate cumulative probability
     k, y = tree(k, y)
     cp1, cp2, cp3, cp4 = cumulative(k, y, cp1, cp2, cp3, cp4)
     print(k,y)
@@ -460,7 +459,7 @@ for q in range(19):#循环调用建树函数tree和计算累积概率的函数cu
     fo.write(str(cp4) + '\n')
 
 
-# 把结果写入foo.txt
+# Write the result to foo.txt
 p=1
 i1=0
 i2=0
@@ -469,14 +468,14 @@ i4=0
 i5=0
 while p < y:
     # print('d' + str(p),''.join(vars()['d' + str(p)]),vars()[str(vars()['d' + str(p)])])
-    if globals()[str(globals()['d' + str(p)])]['level']>3:# 求四种事故状态的节点数
+    if globals()[str(globals()['d' + str(p)])]['level']>3:# Find the number of nodes in the four accident states
         i1=i1+globals()[str(globals()['d' + str(p)])]['probability']
     if globals()[str(globals()['d' + str(p)])]['level']<=-3:
         i2=i2+globals()[str(globals()['d' + str(p)])]['probability']
     if (globals()[str(globals()['d' + str(p)])]['valve1']==-1 and globals()[str(globals()['d' + str(p)])]['valve2'] ==-1 \
             and globals()[str(globals()['d' + str(p)])]['valve3'] == -1 and globals()[str(globals()['d' + str(p)])]['level']<=3\
             and globals()[str(globals()['d' + str(p)])]['level']>-3) or (globals()[str(globals()['d' + str(p)])]['failure1']==1 and globals()[str(globals()['d' + str(p)])]['failure2'] ==1 \
-            and globals()[str(globals()['d' + str(p)])]['failure3'] == 1): #如果没有干涸或溢出，但是阀门全关或全部失效，要通过下面的判断统计它们水位分布于各个区间内的概率
+            and globals()[str(globals()['d' + str(p)])]['failure3'] == 1): #If there is no dryness or overflow, but the valves are completely closed or all fail, the probability of their water level distribution in each interval is counted by the following judgment.
         if -3 < globals()[str(globals()['d' + str(p)])]['level'] <= -0.99:
             i3 = i3 + globals()[str(globals()['d' + str(p)])]['probability']
         if -0.99 < globals()[str(globals()['d' + str(p)])]['level'] <= 0.99:
@@ -488,9 +487,9 @@ while p < y:
     fo.write(str(''.join(vars()['d' + str(p)]))+' ')
     fo.write(str(vars()[str(vars()['d' + str(p)])])+'\n')
     p=p+1
-#以下语句用于统计达到仿真时间依然没有失效的那些节点的水位分布于各区间的概率，但是p的值及相应控制条件需要手动设置，p的值为最后一代节点的第一个节点对应的总节点数标号，p的上限是最后一个节点对应的标号
-#5483是第20代节点的第一个节点，即A000000000000000000000对应的标号，在foo.txt中很容易查到。
-#6247是最后一个节点对应的标号，它等于总节点数-1
+#The following statement is used to calculate the probability that the water level of those nodes that have not failed until the simulation time is distributed in each interval, but the value of p and the corresponding control conditions need to be manually set. The value of p is the total corresponding to the first node of the last generation node. The number of nodes, the upper limit of p is the label corresponding to the last node
+#5483 is the first node of the 20th generation node, that is, the label corresponding to A000000000000000000000, which is easy to find in foo.txt.
+#6247 is the label corresponding to the last node, which is equal to the total number of nodes -1
 p=5483
 
 while 5483<=p<=6247:
@@ -512,8 +511,8 @@ while 5483<=p<=6247:
     p = p + 1
 
 fo.close()
-print('大于3m',i1,'小于3m',i2,'-1~-3',i3,'-1~1',i4,'1~3',i5)
-print('小于3m',i2)
+print('Greater than 3m',i1)
+print('Less than 3m',i2)
 print('-1~-3',i3)
 print('-1~1',i4)
 print('1~3',i5)
