@@ -123,7 +123,7 @@ Because DET generates huge branch data in practical applications, it is often an
         globals()['d'+str(y-1)]=deepcopy(a)
         a=deepcopy(b)
     ```
-    If the valve 1 of the current state (parent node) does not fail, calculate the child node in the case where the valve 1 fails in the next state:      
+   If the valve 1 of the current state (parent node) does not fail, calculate the child node in the case where the valve 1 fails in the next state:      
     ```
     if globals()[str(a)]['failure1']==0:
         a.append(str(1))
@@ -138,7 +138,7 @@ Because DET generates huge branch data in practical applications, it is often an
         globals()['d' + str(y - 1)] = deepcopy(a)
         a=deepcopy(b)
     ```
-    If the valve 2 of the current state (parent node) does not fail, calculate the child node in the case where the valve 2 fails in the next state:      
+   If the valve 2 of the current state (parent node) does not fail, calculate the child node in the case where the valve 2 fails in the next state:      
     ```
     if globals()[str(a)]['failure2']==0:
         a.append(str(2))
@@ -153,7 +153,7 @@ Because DET generates huge branch data in practical applications, it is often an
         globals()['d' + str(y - 1)] = deepcopy(a)
         a=deepcopy(b)
     ```
-    If the valve 3 of the current state (parent node) does not fail, calculate the child node in the case where the valve 3 fails in the next state:      
+   If the valve 3 of the current state (parent node) does not fail, calculate the child node in the case where the valve 3 fails in the next state:      
     ```
     if globals()[str(a)]['failure3']==0:
         a.append(str(3))
@@ -168,7 +168,7 @@ Because DET generates huge branch data in practical applications, it is often an
         globals()['d' + str(y - 1)] = deepcopy(a)
         a = deepcopy(b)
     ```
-    Initialize the cumulative probability of different accidents:
+   Initialize the cumulative probability of different accidents:
     ```
     cp1=0.0
     cp2=0.0
@@ -176,8 +176,8 @@ Because DET generates huge branch data in practical applications, it is often an
     cp4=0.0
     cp1, cp2, cp3, cp4 = cumulative(k, y, cp1, cp2, cp3, cp4)
     ```
-    Open the storage file:`fo = open("foo.txt", "w")`       
-    Loop through the tree-building function and calculate the cumulative probability function to build a dynamic event tree:
+   Open the storage file:`fo = open("foo.txt", "w")`       
+   Loop through the tree-building function and calculate the cumulative probability function to build a dynamic event tree:
     ```
     for q in range(19):
         k, y = tree(k, y)
@@ -190,6 +190,36 @@ Because DET generates huge branch data in practical applications, it is often an
         fo.write(str(cp3) + ' ')
         fo.write(str(cp4) + '\n')
     ```
+   Write the result of the calculation to the output file:
+   ```
+   p=1
+i1=0
+i2=0
+i3=0
+i4=0
+i5=0
+while p < y:
+    # print('d' + str(p),''.join(vars()['d' + str(p)]),vars()[str(vars()['d' + str(p)])])
+    if globals()[str(globals()['d' + str(p)])]['level']>3:# 求四种事故状态的节点数
+        i1=i1+globals()[str(globals()['d' + str(p)])]['probability']
+    if globals()[str(globals()['d' + str(p)])]['level']<=-3:
+        i2=i2+globals()[str(globals()['d' + str(p)])]['probability']
+    if (globals()[str(globals()['d' + str(p)])]['valve1']==-1 and globals()[str(globals()['d' + str(p)])]['valve2'] ==-1 \
+            and globals()[str(globals()['d' + str(p)])]['valve3'] == -1 and globals()[str(globals()['d' + str(p)])]['level']<=3\
+            and globals()[str(globals()['d' + str(p)])]['level']>-3) or (globals()[str(globals()['d' + str(p)])]['failure1']==1 and globals()[str(globals()['d' + str(p)])]['failure2'] ==1 \
+            and globals()[str(globals()['d' + str(p)])]['failure3'] == 1): #如果没有干涸或溢出，但是阀门全关或全部失效，要通过下面的判断统计它们水位分布于各个区间内的概率
+        if -3 < globals()[str(globals()['d' + str(p)])]['level'] <= -0.99:
+            i3 = i3 + globals()[str(globals()['d' + str(p)])]['probability']
+        if -0.99 < globals()[str(globals()['d' + str(p)])]['level'] <= 0.99:
+            i4 = i4 + globals()[str(globals()['d' + str(p)])]['probability']
+        if 0.99 < globals()[str(globals()['d' + str(p)])]['level'] <= 3:
+            i5 = i5 + globals()[str(globals()['d' + str(p)])]['probability']
+
+    fo.write(str('d' + str(p))+' ')
+    fo.write(str(''.join(vars()['d' + str(p)]))+' ')
+    fo.write(str(vars()[str(vars()['d' + str(p)])])+'\n')
+    p=p+1
+   ```
     
 
 **Complete code:**     
