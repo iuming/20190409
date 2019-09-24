@@ -89,16 +89,16 @@ Because DET generates huge branch data in practical applications, it is often an
 ![images](https://github.com/iuming/20190924/blob/master/images/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190924213810.png)    
 ![images](https://github.com/iuming/20190924/blob/master/images/1569332318(1).png)     
 
-### Code(Python)   
-#### Component library:
+#### Code(Python)   
+##### Component library:
    Reference Python library:`from copy import deepcopy`       
-#### Function:
+##### Function:
    Create a dynamic event tree function:`def tree(k,y):`      
    Set control strategy function:`def control(name):`      
    Water level calculation function:`def level(name):`     
    Branch probability calculation function:`def probability(name, prename):`      
    Compute the cumulative function of the node (total probability):`def cumulative(k,y,cp1,cp2,cp3,cp4):`       
-#### Main program:   
+##### Main program:   
    Initialize the node name:`a=['A',str(0)]`      
    Initialize the node content corresponding to the node name:`globals()[str(a)]={'valve1': 1, 'failure1': 0, 'valve2': -1, 'failure2': 0, 'valve3': 1, 'failure3': 0, 'level':0,'probability': 1}`       
    The name of the parent node that needs to be reserved in the initialization program calculation:`b=deepcopy(a)`     
@@ -240,7 +240,7 @@ Because DET generates huge branch data in practical applications, it is often an
     print('1~3',i5)
    ```
 
-**Complete code:**     
+##### Complete code:    
 ```
 from copy import deepcopy
 #import matplotlib
@@ -517,3 +517,6 @@ print('-1~-3',i3)
 print('-1~1',i4)
 print('1~3',i5)
 ```
+
+## Program(C++)
+    
