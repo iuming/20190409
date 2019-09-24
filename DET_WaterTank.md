@@ -88,3 +88,282 @@ Because DET generates huge branch data in practical applications, it is often an
 ### Program flow diagram：
 ![images](https://github.com/iuming/20190924/blob/master/images/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190924213810.png)    
 ![images](https://github.com/iuming/20190924/blob/master/images/1569332318(1).png)     
+
+### Code：   
+```
+from copy import deepcopy
+#import matplotlib
+
+def tree(k,y):
+    i3=0
+    i4=0
+    i5=0
+    i=1 #循环控制变量
+    x=k #上一代新增节点数，k记录上一代新增节点数
+    k=0 #k重置
+    y1=y #y1代表上一代总节点数+1
+    while (y-x-k+(i-1))<y1 : #该控制条件表示遍历上一代所有节点
+        if globals()[str(globals()['d' + str(y-x-k+(i-1))])]['level']>=3 or \
+                globals()[str(globals()['d' + str(y-x-k+(i-1))])]['level']<=-3:
+            i=i+1
+            continue
+
+        if globals()[str(globals()['d' + str(y-x-k+(i-1))])]['valve1']==-1 and \
+                globals()[str(globals()['d' + str(y-x-k+(i-1))])]['valve2']==-1 and \
+                globals()[str(globals()['d' + str(y - x - k + (i - 1))])]['valve3'] == -1:
+            i=i+1
+            continue
+
+        if globals()[str(globals()['d' + str(y-x-k+(i-1))])]['failure1'] == 1 and \
+                globals()[str(globals()['d' + str(y-x-k+(i-1))])]['failure2'] == 1 \
+                and globals()[str(globals()['d' + str(y-x-k+(i-1))])]['failure3'] == 1:
+            i=i+1
+            continue
+        if -3 < globals()[str(globals()['d' + str(y-x-k+(i-1))])]['level'] <= -0.99:
+            i3 = i3 + globals()[str(globals()['d' + str(y-x-k+(i-1))])]['probability']
+        if -0.99 < globals()[str(globals()['d' + str(y-x-k+(i-1))])]['level'] <= 0.99:
+            i4 = i4 + globals()[str(globals()['d' + str(y-x-k+(i-1))])]['probability']
+        if 0.99 < globals()[str(globals()['d' + str(y-x-k+(i-1))])]['level'] <= 3:
+            i5 = i5 + globals()[str(globals()['d' + str(y-x-k+(i-1))])]['probability']
+        fo.write(str(i3) + ' ')
+        fo.write(str(i4) + ' ')
+        fo.write(str(i5) + '\n ')
+        a=deepcopy(globals()['d'+str(y-x-k+(i-1))]) #设置父节点对应的字典名
+        b=deepcopy(a)#存储父节点对应的字典名，b在单次循环中的值是不会改变的，始终是父节点的字典名
+        c=deepcopy(globals()[str(globals()['d' + str(y-x-k+(i-1))])])# 存储父节点对应的字典，功能同C
+
+        if globals()[str(a)]['failure1'] == 0 or globals()[str(a)]['failure2'] == 0 or globals()[str(a)]['failure3'] == 0:
+            a.append(str(0)) #在父节点的以列表表示的字典名后增加一个元素，表示子节点的字典名
+            k = k + 1
+            y=y+1
+            globals()[str(a)] = deepcopy(c) #给新的字典名赋一个和父节点相同的字典
+            control(globals()[str(a)])#依据父节点采取控制策略
+            level(globals()[str(a)]) #依据父节点计算水位
+            probability(globals()[str(a)], globals()[str(globals()['d' + str(y - x - k + (i - 1))])])#依据父节点计算概率
+            globals()['d' + str(y - 1)] = deepcopy(a) #把字典名赋给记录节点数的变量
+            a = deepcopy(b)#还原成父节点的字典名
+        if globals()[str(a)]['failure1'] == 0:
+            a.append(str(1))
+            k = k + 1
+            y=y+1
+            globals()[str(a)] = deepcopy(c)
+            globals()[str(a)]['failure1'] = 1
+            globals()[str(a)]['valve1'] = -1 * globals()[str(a)]['valve1']#如果接收器是好的，那么就对接收器进行失效
+            control(globals()[str(a)])
+            level(globals()[str(a)])
+            probability(globals()[str(a)], globals()[str(globals()['d' + str(y - x - k + (i - 1))])])
+            globals()['d' + str(y - 1)] = deepcopy(a)
+            a = deepcopy(b)
+        if globals()[str(a)]['failure2'] == 0:
+            a.append(str(2))
+            k = k + 1
+            y=y+1
+            globals()[str(a)] = deepcopy(c)
+            globals()[str(a)]['failure2'] = 1
+            globals()[str(a)]['valve2'] = -1 * globals()[str(a)]['valve2']
+            control(globals()[str(a)])
+            level(globals()[str(a)])
+            probability(globals()[str(a)], globals()[str(globals()['d' + str(y - x - k + (i - 1))])])
+            globals()['d' + str(y - 1)] = deepcopy(a)
+            a = deepcopy(b)
+        if globals()[str(a)]['failure3'] == 0:
+            a.append(str(3))
+            k = k + 1
+            y=y+1
+            globals()[str(a)] = deepcopy(c)
+            globals()[str(a)]['failure3'] = 1
+            globals()[str(a)]['valve3'] = -1 * globals()[str(a)]['valve3']
+            control(globals()[str(a)])
+            level(globals()[str(a)])
+            probability(globals()[str(a)], globals()[str(globals()['d' + str(y - x - k + (i - 1))])])
+            globals()['d' + str(y - 1)] = deepcopy(a)
+            a = deepcopy(b)
+        i=i+1
+
+    return k,y
+def control(name):# 控制策略
+    if -1 < name['level'] <1:
+        pass
+        name['valve1'] = 1 * (name['valve1'] ** name['failure1']) * (1) ** name['failure1']
+        name['valve2'] = -1 * (name['valve2'] ** name['failure2']) * (-1) ** name['failure2']
+        name['valve3'] = 1 * (name['valve3'] ** name['failure3']) * (1) ** name['failure3']
+    if name['level'] >= 1:
+        name['valve1'] = -1 * (name['valve1'] ** name['failure1']) * (-1) ** name['failure1']
+        name['valve2'] = -1 * (name['valve2'] ** name['failure2']) * (-1) ** name['failure2']
+        name['valve3'] = 1 * (name['valve3'] ** name['failure3']) * (1) ** name['failure3']
+    if name['level'] <= -1:
+        name['valve1'] = 1 * (name['valve1'] ** name['failure1']) * (1) ** name['failure1']
+        name['valve2'] = 1 * (name['valve2'] ** name['failure2']) * (1) ** name['failure2']
+        name['valve3'] = -1 * (name['valve3'] ** name['failure3']) * (-1) ** name['failure3']
+    return name
+def level(name):#水位计算
+    name['level'] =round(name['level'] + 1.0 * float(not (not (name['valve1'] + 1))) + 0.5* float(not (not (name['valve2'] + 1))) \
+        - 1.2 * float(not (not (name['valve3'] + 1))),2)
+    return name
+def probability(name, prename):#概率计算
+    name['probability'] = prename['probability'] * (0.99 ** (3 - name['failure1'] - name['failure2'] - name['failure3'])) * \
+                     (0.01 ** ((name['failure1'] + name['failure2'] + name['failure3']) - (
+                             prename['failure1'] + prename['failure2'] + prename['failure3'])))
+    return name
+def cumulative(k,y,cp1,cp2,cp3,cp4):# 计算累积概率
+    i = 1  # 循环控制变量
+    x = k  # 上一代新增节点数，k记录上一代新增节点数
+    k = 0  # k重置
+    y1 = y
+
+    while (y - x - k + (i - 1)) < y1:
+        if globals()[str(globals()['d' + str(y-x-k+(i-1))])]['level']>=3:#溢出事故
+            cp1=globals()[str(globals()['d' + str(y-x-k+(i-1))])]['probability']+cp1 #只要
+        if globals()[str(globals()['d' + str(y-x-k+(i-1))])]['level']<=-3:#干涸事故
+            cp2=globals()[str(globals()['d' + str(y-x-k+(i-1))])]['probability']+cp2
+        if globals()[str(globals()['d' + str(y-x-k+(i-1))])]['valve1']==-1 and \
+                globals()[str(globals()['d' + str(y-x-k+(i-1))])]['valve2']==-1 and \
+                globals()[str(globals()['d' + str(y - x - k + (i - 1))])]['valve3'] == -1:#三个阀门全部关闭
+            cp3=globals()[str(globals()['d' + str(y-x-k+(i-1))])]['probability']+cp3
+        if globals()[str(globals()['d' + str(y - x - k + (i - 1))])]['failure1'] == 1 and \
+                globals()[str(globals()['d' + str(y - x - k + (i - 1))])]['failure2'] == 1 \
+                and globals()[str(globals()['d' + str(y - x - k + (i - 1))])]['failure3'] == 1:# 三个信号接收器全部失效
+            cp4 = globals()[str(globals()['d' + str(y - x - k + (i - 1))])]['probability'] + cp4
+        i=i+1
+    print('溢出=',cp1)
+    print('干涸=',cp2)
+    print('无法冷却=',cp3)
+    print('全部失效=',cp4)
+    return cp1,cp2,cp3,cp4
+#上述函数推导另见
+
+
+a=['A',str(0)]# 初始化节点名
+globals()[str(a)]={'valve1': 1, 'failure1': 0, 'valve2': -1, 'failure2': 0, 'valve3': 1, 'failure3': 0, 'level':0,
+      'probability': 1}#初始化节点名对应的节点内容
+b=deepcopy(a) #初始化程序计算中需要保留的父节点名
+c=deepcopy(globals()[str(a)])# 初始化需要保留的父节点字典
+k=0 #k存储每一步长新生成的节点数
+y=1#记录总节点数（包括根节点）
+if globals()[str(a)]['failure1']==1 and globals()[str(a)]['failure2']==1 and globals()[str(a)]['failure3']==1:
+    pass
+if globals()[str(a)]['failure1']==0 or globals()[str(a)]['failure2']==0 or globals()[str(a)]['failure3']==0:
+    a.append(str(0))
+    k=k+1
+    y=y+1
+    globals()[str(a)]=deepcopy(c)
+    control(globals()[str(a)])
+    level(globals()[str(a)])
+    probability(globals()[str(a)],c)
+    globals()['d'+str(y-1)]=deepcopy(a)
+    a=deepcopy(b)
+if globals()[str(a)]['failure1']==0:
+    a.append(str(1))
+    k=k+1
+    y = y + 1
+    globals()[str(a)]=deepcopy(c)
+    globals()[str(a)]['failure1']=1
+    globals()[str(a)]['valve1']=-1*globals()[str(a)]['valve1']
+    control(globals()[str(a)])
+    level(globals()[str(a)])
+    probability(globals()[str(a)], c)
+    globals()['d' + str(y - 1)] = deepcopy(a)
+    a=deepcopy(b)
+if globals()[str(a)]['failure2']==0:
+    a.append(str(2))
+    k=k+1
+    y = y + 1
+    globals()[str(a)]=deepcopy(c)
+    globals()[str(a)]['failure2']=1
+    globals()[str(a)]['valve2']=-1*globals()[str(a)]['valve2']
+    control(globals()[str(a)])
+    level(globals()[str(a)])
+    probability(globals()[str(a)], c)
+    globals()['d' + str(y - 1)] = deepcopy(a)
+    a=deepcopy(b)
+if globals()[str(a)]['failure3']==0:
+    a.append(str(3))
+    k=k+1
+    y = y + 1
+    globals()[str(a)]=deepcopy(c)
+    globals()[str(a)]['failure3']=1
+    globals()[str(a)]['valve3']=-1*globals()[str(a)]['valve3']
+    control(globals()[str(a)])
+    level(globals()[str(a)])
+    probability(globals()[str(a)], c)
+    globals()['d' + str(y - 1)] = deepcopy(a)
+    a = deepcopy(b)
+#初始化不同事故的累积概率
+cp1=0.0
+cp2=0.0
+cp3=0.0
+cp4=0.0
+cp1, cp2, cp3, cp4 = cumulative(k, y, cp1, cp2, cp3, cp4)
+
+fo = open("foo.txt", "w")
+
+for q in range(19):#循环调用建树函数tree和计算累积概率的函数cumulative
+    k, y = tree(k, y)
+    cp1, cp2, cp3, cp4 = cumulative(k, y, cp1, cp2, cp3, cp4)
+    print(k,y)
+    fo.write(str(k) + ' ')
+    fo.write(str(y) + ' ')
+    fo.write(str(cp1) + ' ')
+    fo.write(str(cp2) + ' ')
+    fo.write(str(cp3) + ' ')
+    fo.write(str(cp4) + '\n')
+
+
+# 把结果写入foo.txt
+p=1
+i1=0
+i2=0
+i3=0
+i4=0
+i5=0
+while p < y:
+    # print('d' + str(p),''.join(vars()['d' + str(p)]),vars()[str(vars()['d' + str(p)])])
+    if globals()[str(globals()['d' + str(p)])]['level']>3:# 求四种事故状态的节点数
+        i1=i1+globals()[str(globals()['d' + str(p)])]['probability']
+    if globals()[str(globals()['d' + str(p)])]['level']<=-3:
+        i2=i2+globals()[str(globals()['d' + str(p)])]['probability']
+    if (globals()[str(globals()['d' + str(p)])]['valve1']==-1 and globals()[str(globals()['d' + str(p)])]['valve2'] ==-1 \
+            and globals()[str(globals()['d' + str(p)])]['valve3'] == -1 and globals()[str(globals()['d' + str(p)])]['level']<=3\
+            and globals()[str(globals()['d' + str(p)])]['level']>-3) or (globals()[str(globals()['d' + str(p)])]['failure1']==1 and globals()[str(globals()['d' + str(p)])]['failure2'] ==1 \
+            and globals()[str(globals()['d' + str(p)])]['failure3'] == 1): #如果没有干涸或溢出，但是阀门全关或全部失效，要通过下面的判断统计它们水位分布于各个区间内的概率
+        if -3 < globals()[str(globals()['d' + str(p)])]['level'] <= -0.99:
+            i3 = i3 + globals()[str(globals()['d' + str(p)])]['probability']
+        if -0.99 < globals()[str(globals()['d' + str(p)])]['level'] <= 0.99:
+            i4 = i4 + globals()[str(globals()['d' + str(p)])]['probability']
+        if 0.99 < globals()[str(globals()['d' + str(p)])]['level'] <= 3:
+            i5 = i5 + globals()[str(globals()['d' + str(p)])]['probability']
+
+    fo.write(str('d' + str(p))+' ')
+    fo.write(str(''.join(vars()['d' + str(p)]))+' ')
+    fo.write(str(vars()[str(vars()['d' + str(p)])])+'\n')
+    p=p+1
+#以下语句用于统计达到仿真时间依然没有失效的那些节点的水位分布于各区间的概率，但是p的值及相应控制条件需要手动设置，p的值为最后一代节点的第一个节点对应的总节点数标号，p的上限是最后一个节点对应的标号
+#5483是第20代节点的第一个节点，即A000000000000000000000对应的标号，在foo.txt中很容易查到。
+#6247是最后一个节点对应的标号，它等于总节点数-1
+p=5483
+
+while 5483<=p<=6247:
+
+    if not(globals()[str(globals()['d' + str(p)])]['valve1'] == -1 and globals()[str(globals()['d' + str(p)])][
+        'valve2'] == -1 \
+        and globals()[str(globals()['d' + str(p)])]['valve3'] == -1 and globals()[str(globals()['d' + str(p)])][
+            'level'] <= 3 \
+        and globals()[str(globals()['d' + str(p)])]['level'] > -3) and not (
+            globals()[str(globals()['d' + str(p)])]['failure1'] == 1 and globals()[str(globals()['d' + str(p)])][
+        'failure2'] == 1 \
+            and globals()[str(globals()['d' + str(p)])]['failure3'] == 1):
+        if -3<globals()[str(globals()['d' + str(p)])]['level']<=-0.99:
+            i3=i3+globals()[str(globals()['d' + str(p)])]['probability']
+        if -0.99<globals()[str(globals()['d' + str(p)])]['level']<=0.99:
+            i4=i4+globals()[str(globals()['d' + str(p)])]['probability']
+        if 0.99<globals()[str(globals()['d' + str(p)])]['level']<=3:
+            i5=i5+globals()[str(globals()['d' + str(p)])]['probability']
+    p = p + 1
+
+fo.close()
+print('大于3m',i1,'小于3m',i2,'-1~-3',i3,'-1~1',i4,'1~3',i5)
+print('小于3m',i2)
+print('-1~-3',i3)
+print('-1~1',i4)
+print('1~3',i5)
+```
