@@ -89,7 +89,12 @@ Because DET generates huge branch data in practical applications, it is often an
 ![images](https://github.com/iuming/20190924/blob/master/images/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190924213810.png)    
 ![images](https://github.com/iuming/20190924/blob/master/images/1569332318(1).png)     
 
-### Code：   
+### Code(Python)：   
+   Reference Python library:`from copy import deepcopy`       
+   Create a dynamic event tree function:`def tree(k,y):`      
+   Set control strategy function:`def control(name):`      
+   
+**Complete code:**     
 ```
 from copy import deepcopy
 #import matplotlib
