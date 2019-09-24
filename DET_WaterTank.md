@@ -21,3 +21,6 @@ Because DET generates huge branch data in practical applications, it is often an
     ![images](https://github.com/iuming/20190409/blob/master/images/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202019-09-23%20%E4%B8%8B%E5%8D%8811.53.10.png)         
     This equation represents the next system state transition, that is, the time ![images](https://github.com/iuming/20190409/blob/master/images/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202019-09-23%20%E4%B8%8B%E5%8D%8811.49.09.png) indicates the next system state transition, that is, the time is ![images](https://github.com/iuming/20190409/blob/master/images/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202019-09-23%20%E4%B8%8B%E5%8D%8811.49.22.png). A simple example of the resulting DET based on this equation is given below.    
     ![inages](https://github.com/iuming/20190409/blob/master/images/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202019-09-23%20%E4%B8%8B%E5%8D%8811.53.57.png)        
+**Tree building rules:**
+    >>>The relevant rules of DET mainly include branch rules, absorption rules, low-probability path processing rules, etc., which are mainly used to control the size of the tree, so that the resulting tree can meet the requirements of security risk analysis and avoid branch explosion of the tree. , mitigation of calculation and storage burden, etc.
+    
