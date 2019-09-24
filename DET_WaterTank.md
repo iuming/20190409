@@ -89,11 +89,109 @@ Because DET generates huge branch data in practical applications, it is often an
 ![images](https://github.com/iuming/20190924/blob/master/images/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20190924213810.png)    
 ![images](https://github.com/iuming/20190924/blob/master/images/1569332318(1).png)     
 
-### Code(Python)：   
+### Code(Python)   
+#### Component library:
    Reference Python library:`from copy import deepcopy`       
+#### Function:
    Create a dynamic event tree function:`def tree(k,y):`      
    Set control strategy function:`def control(name):`      
-   
+   Water level calculation function:`def level(name):`     
+   Branch probability calculation function:`def probability(name, prename):`      
+   Compute the cumulative function of the node (total probability):`def cumulative(k,y,cp1,cp2,cp3,cp4):`       
+#### Main program   
+    Initialize the node name:`a=['A',str(0)]`      
+    Initialize the node content corresponding to the node name:`globals()[str(a)]={'valve1': 1, 'failure1': 0, 'valve2': -1, 'failure2': 0, 'valve3': 1, 'failure3': 0, 'level':0,'probability': 1}`       
+    The name of the parent node that needs to be reserved in the initialization program calculation:`b=deepcopy(a)`     
+    Initialize the parent node dictionary that needs to be preserved:`c=deepcopy(globals()[str(a)])`     
+    k store the number of newly generated nodes per step:`k=0`     
+    y record the total number of nodes (including the root node):`y=1`     
+    If the valve state of the initial state (root node) is all invalid, the program is terminated:
+    ```     
+    if globals()[str(a)]['failure1']==1 and globals()[str(a)]['failure2']==1 and globals()[str(a)]['failure3']==1:
+        pass
+    ```    
+    If the valve of the current state (parent node) is not fully invalid, calculate the child node in the case where the valve does not fail in the next state:       
+    ```    
+    if globals()[str(a)]['failure1']==0 or globals()[str(a)]['failure2']==0 or globals()[str(a)]['failure3']==0:
+        a.append(str(0))
+        k=k+1
+        y=y+1
+        globals()[str(a)]=deepcopy(c)
+        control(globals()[str(a)])
+        level(globals()[str(a)])
+        probability(globals()[str(a)],c)
+        globals()['d'+str(y-1)]=deepcopy(a)
+        a=deepcopy(b)
+    ```
+    If the valve 1 of the current state (parent node) does not fail, calculate the child node in the case where the valve 1 fails in the next state:      
+    ```
+    if globals()[str(a)]['failure1']==0:
+        a.append(str(1))
+        k=k+1
+        y = y + 1
+        globals()[str(a)]=deepcopy(c)
+        globals()[str(a)]['failure1']=1
+        globals()[str(a)]['valve1']=-1*globals()[str(a)]['valve1']
+        control(globals()[str(a)])
+        level(globals()[str(a)])
+        probability(globals()[str(a)], c)
+        globals()['d' + str(y - 1)] = deepcopy(a)
+        a=deepcopy(b)
+    ```
+    If the valve 2 of the current state (parent node) does not fail, calculate the child node in the case where the valve 2 fails in the next state:      
+    ```
+    if globals()[str(a)]['failure2']==0:
+        a.append(str(2))
+        k=k+1
+        y = y + 1
+        globals()[str(a)]=deepcopy(c)
+        globals()[str(a)]['failure2']=1
+        globals()[str(a)]['valve2']=-1*globals()[str(a)]['valve2']
+        control(globals()[str(a)])
+        level(globals()[str(a)])
+        probability(globals()[str(a)], c)
+        globals()['d' + str(y - 1)] = deepcopy(a)
+        a=deepcopy(b)
+    ```
+    If the valve 3 of the current state (parent node) does not fail, calculate the child node in the case where the valve 3 fails in the next state:      
+    ```
+    if globals()[str(a)]['failure3']==0:
+        a.append(str(3))
+        k=k+1
+        y = y + 1
+        globals()[str(a)]=deepcopy(c)
+        globals()[str(a)]['failure3']=1
+        globals()[str(a)]['valve3']=-1*globals()[str(a)]['valve3']
+        control(globals()[str(a)])
+        level(globals()[str(a)])
+        probability(globals()[str(a)], c)
+        globals()['d' + str(y - 1)] = deepcopy(a)
+        a = deepcopy(b)
+    ```
+    Initialize the cumulative probability of different accidents:
+    ```
+    cp1=0.0
+    cp2=0.0
+    cp3=0.0
+    cp4=0.0
+    cp1, cp2, cp3, cp4 = cumulative(k, y, cp1, cp2, cp3, cp4)
+    ```
+    Open the storage file:`fo = open("foo.txt", "w")`       
+    Loop through the tree-building function and calculate the cumulative probability function to build a dynamic event tree:
+    ```
+    for q in range(19):
+        k, y = tree(k, y)
+        cp1, cp2, cp3, cp4 = cumulative(k, y, cp1, cp2, cp3, cp4)
+        print(k,y)
+        fo.write(str(k) + ' ')
+        fo.write(str(y) + ' ')
+        fo.write(str(cp1) + ' ')
+        fo.write(str(cp2) + ' ')
+        fo.write(str(cp3) + ' ')
+        fo.write(str(cp4) + '\n')
+    ```
+    
+
 **Complete code:**     
 ```
 from copy import deepcopy
