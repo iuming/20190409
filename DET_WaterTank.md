@@ -519,4 +519,432 @@ print('1~3',i5)
 ```
 
 ## Program(C++)
-    
+### Programming step     
+  Step1: Establish node structure travel, such as NodeIndex node index (string), waterLevel liquid level (double), _time time point (int), state valve state (bool) and other state parameters, establish q_cur (previous queue), Q_next (next queue) and the generation of the next node, control strategy and other functions;          
+  Step2: Read the time step con_max value, and determine whether the initial state quantity meets the condition, and put it into the q_cur queue;               
+  Step3: Through the four-layer enumeration loop: the innermost loop enumerates the signal receiver failure position, the second layer loops enumerates the state quantity of the node, and then judges, and counts the qualified nodes into the next queue and outputs, The three-layer loop enumerates all the nodes of the previous queue. After enumeration, the data of the previous node is cleared, the data of the next node is switched to the previous node, and the outermost loop determines whether the time step reaches the input time amount.       
+### Logical block diagram
+  ![images](https://github.com/iuming/20190924/blob/master/images/000.jpg)         
+  
+#### Code(C++)
+##### head File：
+  ```
+   #include<iostream>
+   #include<cstdio>
+   #include<cstdlib>
+   #include<algorithm>
+   #include<string>
+   #include<cstring>
+   #include<cmath>
+   #include<list>
+   #include<vector>
+   #include<stack>
+   #include<queue>
+   #include<set>
+   #include<map>
+   #include<functional>
+   #include<fstream>
+   #include<ctime>
+   #include<iomanip>
+   #include<windows.h>
+  ```  
+##### Program macro definition and pre-naming:
+ ```
+  #define re register
+   #define IOS std::ios::sync_with_stdio(false)
+   #define met(f,val) memset((f),val,sizeof(f))
+   #define ll long long
+   #define ull unsigned long long
+
+   using namespace std;
+  ```
+##### Program basic parameter setting：
+  ```
+   const string s1 = "Gleaf";
+   const string s2 = "node";
+   const string s3 = "Wleaf";
+   const double Pro = 0.97;
+   const double _Pro = 0.98;
+   const double __Pro = 0.99;
+   const double Pro_non = 0.01;
+   const double v1 = 1, v2 = 0.5, v3 = -1.2;
+   const double const_max = .0, const_min = -.0;
+  ```
+##### Defining node data：
+  ```
+   typedef struct CNode
+   {
+   	string NodeIndex, Attr;
+   	int _time, Tag;
+	   double waterLevel, Pro;
+   	bool is[3], State[3];
+   	CNode *pre;
+   	vector<CNode*> nexts;
+   };
+  ```
+##### Define node class (parameters, functions):      
+  ```
+    class Node
+   {
+   private:
+   	CNode * current = nullptr;
+   public:
+   	ull temp_count = 0, temp_count_ = 1;//节点数
+   	CNode * Creat(double x)
+   	{
+	   	current = new(CNode);
+	   	current->waterLevel = x;
+	   	current->Attr = s2;
+	   	fill_n(current->is, 3, true);
+	   	//fill_n(current->State, 3, false);
+	   	current->State[0] = 1;
+	   	current->State[1] = 0;
+	   	current->State[2] = 1;
+	   	current->pre = nullptr;
+	   	current->NodeIndex = "";
+	   	current->Pro = 0;
+	   	current->Tag = 1;
+	   	current->_time = 0;
+	   	return current;
+   	}
+   	CNode* inherit(CNode *pre)
+   	{
+	   	CNode* cur = new(CNode);
+	   	cur->Attr = pre->Attr;
+	   	cur->is[0] = pre->is[0];
+	   	cur->is[1] = pre->is[1];
+	   	cur->is[2] = pre->is[2];
+	   	cur->NodeIndex = pre->NodeIndex;
+	   	cur->Pro = pre->Pro;
+   		cur->Tag = pre->Tag;
+	   	cur->_time = pre->_time;
+   		cur->State[0] = pre->State[0];
+	   	cur->State[1] = pre->State[1];
+	   	cur->State[2] = pre->State[2];
+	   	cur->waterLevel = pre->waterLevel;
+	   	cur->pre = pre;
+	   	return cur;
+	   }
+	   int *control_strategy(CNode *_cur)
+	   {
+	   	if ((_cur->waterLevel < -1) && (_cur->is[0]))_cur->State[0] = 1;
+	   	if ((_cur->waterLevel < -1) && (_cur->is[1]))_cur->State[1] = 1;
+	   	if ((_cur->waterLevel < -1) && (_cur->is[2]))_cur->State[2] = 0;
+	   	if ((_cur->waterLevel > 1) && (_cur->is[0]))_cur->State[0] = 0;
+	   	if ((_cur->waterLevel > 1) && (_cur->is[1]))_cur->State[1] = 0;
+	   	if ((_cur->waterLevel > 1) && (_cur->is[2]))_cur->State[2] = 1;
+	   	return 0;
+	   }
+	   int *control_waterlevel(CNode *_cur)
+	   {
+	   	_cur->waterLevel += _cur->State[0] ? v1 : 0;
+	   	_cur->waterLevel += _cur->State[1] ? v2 : 0;
+	   	_cur->waterLevel += _cur->State[2] ? v3 : 0;
+	   	return 0;
+   	}
+	   int print(CNode* root, ofstream &cout, ull& temp_counts)
+	{
+		cout << "Number of nodes: " << (temp_counts++) << endl;
+		cout << "Node index label: " << root->Attr << endl;
+		cout << "Liquid level: " << root->waterLevel << endl;
+		cout << "Valve status: ";
+		for (int i = 0; i < 3; ++i)
+		{
+			cout << ((root->State[i]) ? "1" : "0") << " ";
+		}
+		cout << endl;
+		cout << "Signal receiver status: ";
+		for (int i = 0; i < 3; ++i)
+		{
+			cout << ((root->is[i]) ? "O" : "F") << " ";
+		}
+		cout << endl;
+		cout << "Node probability: " << root->Pro << endl;
+		cout << endl << endl;
+		return 0;
+   	}
+   };
+  ```
+  Queue storage structure:`queue<CNode*> q_cur, q_next;`        
+  Set the longest step parameter:`static ull con_max;`        
+##### Main function：
+  Set the initial state (root node) water level:`double cur_level = 0;`         
+  Terminate the program if the initial state is a dangerous state:`if (cur_level < -3 || cur_level > 3)return 0;`         
+  Define the initial state water level as the first node:
+  ```
+   Node node;
+	CNode *cur = node.Creat(cur_level);
+	cur->Attr = "0";
+	cur->Pro = 1;
+  ```
+  Loop through the number of nodes, the number of nodes in the unit time state is stored in the queue until the set end time is reached:
+  ```
+  while ((times++) <= con_max)
+	{
+		while (!q_cur.empty())
+		{
+			_pre = q_cur.front();
+			q_cur.pop();
+			for (int i = 0; i <= 3; ++i)
+			{
+				if (!i)
+				{
+					_cur = node.inherit(_pre);
+					int flag = 0;
+					for (int i = 0; i < 3; ++i)
+					{
+						if (!_pre->is[i])
+						{
+							flag++;
+						}
+					}
+					switch (flag)
+					{
+					case 0: {_cur->Pro *= Pro; break; }
+					case 1: {_cur->Pro *= _Pro; break; }
+					case 2: {_cur->Pro *= __Pro; break; }
+					}
+					_cur->Attr += to_string(i);
+					node.control_strategy(_cur);
+					node.control_waterlevel(_cur);
+					q_next.push(_cur);
+				}
+				else
+				{
+					if (_pre->is[i - 1])
+					{
+						_cur = node.inherit(_pre);
+						_cur->Pro *= Pro_non;
+						_cur->Attr += to_string(i);
+						_cur->is[i - 1] = false;
+						_cur->State[i - 1] = !_cur->State[i - 1];
+						node.control_strategy(_cur);
+						node.control_waterlevel(_cur);
+						q_next.push(_cur);
+					}
+				}
+			}
+			if ((_pre->waterLevel > -3) && (_pre->waterLevel < 3))
+					//if (!((_pre->State[1] == false) && (_pre->State[2] == false) && (_pre->State[3] == false)))
+				node.print(_pre, output, node.temp_count);
+			delete _pre;
+		}
+		swap(q_cur, q_next);
+	}
+  ```
+##### Complete code:      
+```
+#include<iostream>
+#include<cstdio>
+#include<cstdlib>
+#include<algorithm>
+#include<string>
+#include<cstring>
+#include<cmath>
+#include<list>
+#include<vector>
+#include<stack>
+#include<queue>
+#include<set>
+#include<map>
+#include<functional>
+#include<fstream>
+#include<ctime>
+#include<iomanip>
+#include<windows.h>
+
+#define re register
+#define IOS std::ios::sync_with_stdio(false)
+#define met(f,val) memset((f),val,sizeof(f))
+#define ll long long
+#define ull unsigned long long
+
+using namespace std;
+
+const string s1 = "Gleaf";
+const string s2 = "node";
+const string s3 = "Wleaf";
+const double Pro = 0.97;//Probability
+const double _Pro = 0.98;
+const double __Pro = 0.99;
+const double Pro_non = 0.01;
+const double v1 = 1, v2 = 0.5, v3 = -1.2;//Valve water flow rate
+const double const_max = 9.0, const_min = -9.0;//Water tank danger value
+
+typedef struct CNode
+{
+	string NodeIndex, Attr;
+	int _time, Tag;
+	double waterLevel, Pro;//Liquid level, probability
+	bool is[3], State[3];//Signal receiver status, switch status
+	CNode *pre;
+	vector<CNode*> nexts;
+};//Establish node data structure
+
+class Node
+{
+private:
+	CNode * current = nullptr;//The pointer points to the current node, the previous node, the next node
+public:
+	ull temp_count = 0, temp_count_ = 1;//Number of nodes
+	CNode * Creat(double x)
+	{
+		current = new(CNode);
+		current->waterLevel = x;
+		current->Attr = s2;
+		fill_n(current->is, 3, true);
+		//fill_n(current->State, 3, false);
+		current->State[0] = 1;
+		current->State[1] = 0;
+		current->State[2] = 1;
+		current->pre = nullptr;
+		current->NodeIndex = "";
+		current->Pro = 0;
+		current->Tag = 1;
+		current->_time = 0;
+		return current;
+	}//Create a new node
+
+
+	CNode* inherit(CNode *pre)
+	{
+		CNode* cur = new(CNode);
+		cur->Attr = pre->Attr;
+		cur->is[0] = pre->is[0];
+		cur->is[1] = pre->is[1];
+		cur->is[2] = pre->is[2];
+		cur->NodeIndex = pre->NodeIndex;
+		cur->Pro = pre->Pro;
+		cur->Tag = pre->Tag;
+		cur->_time = pre->_time;
+		cur->State[0] = pre->State[0];
+		cur->State[1] = pre->State[1];
+		cur->State[2] = pre->State[2];
+		cur->waterLevel = pre->waterLevel;
+		cur->pre = pre;
+		return cur;
+	}//Inherit the water level from the previous time
+
+	int *control_strategy(CNode *_cur)
+	{
+		if ((_cur->waterLevel < -1) && (_cur->is[0]))_cur->State[0] = 1;
+		if ((_cur->waterLevel < -1) && (_cur->is[1]))_cur->State[1] = 1;
+		if ((_cur->waterLevel < -1) && (_cur->is[2]))_cur->State[2] = 0;
+		if ((_cur->waterLevel > 1) && (_cur->is[0]))_cur->State[0] = 0;
+		if ((_cur->waterLevel > 1) && (_cur->is[1]))_cur->State[1] = 0;
+		if ((_cur->waterLevel > 1) && (_cur->is[2]))_cur->State[2] = 1;
+		return 0;
+	}//Control Strategy
+
+	int *control_waterlevel(CNode *_cur)
+	{
+		_cur->waterLevel += _cur->State[0] ? v1 : 0;
+		_cur->waterLevel += _cur->State[1] ? v2 : 0;
+		_cur->waterLevel += _cur->State[2] ? v3 : 0;
+		return 0;
+	}//Control Strategy
+
+	int print(CNode* root, ofstream &cout, ull& temp_counts)
+	{
+		cout << "Number of nodes: " << (temp_counts++) << endl;
+		cout << "Node index label: " << root->Attr << endl;
+		cout << "Liquid level: " << root->waterLevel << endl;
+		cout << "Valve status: ";
+		for (int i = 0; i < 3; ++i)
+		{
+			cout << ((root->State[i]) ? "1" : "0") << " ";
+		}
+		cout << endl;
+		cout << "Signal receiver status: ";
+		for (int i = 0; i < 3; ++i)
+		{
+			cout << ((root->is[i]) ? "O" : "F") << " ";
+		}
+		cout << endl;
+		cout << "Node probability: " << root->Pro << endl;
+		cout << endl << endl;
+		return 0;
+	}
+};
+
+queue<CNode*> q_cur, q_next;//queue
+static ull con_max;
+
+int text()
+{
+	cout << "text" << endl;
+	return 0;
+}//debug
+
+int main()
+{
+	IOS;
+	double cur_level = 0;
+	ifstream input("time.txt", ios::in);
+	input >> con_max;
+	input.close();
+	if (cur_level < -3 || cur_level > 3)return 0;
+	ofstream output("AllNodePath.txt", ios::out);
+	Node node;
+	CNode *cur = node.Creat(cur_level);
+	cur->Attr = "0";
+	cur->Pro = 1;
+	CNode *_cur = cur, *_pre = _cur;
+	ull times = 0;
+	q_cur.push(_cur);
+	while ((times++) <= con_max)
+	{
+		while (!q_cur.empty())
+		{
+			_pre = q_cur.front();
+			q_cur.pop();
+			for (int i = 0; i <= 3; ++i)
+			{
+				if (!i)
+				{
+					_cur = node.inherit(_pre);
+					int flag = 0;
+					for (int i = 0; i < 3; ++i)
+					{
+						if (!_pre->is[i])
+						{
+							flag++;
+						}
+					}
+					switch (flag)
+					{
+					case 0: {_cur->Pro *= Pro; break; }
+					case 1: {_cur->Pro *= _Pro; break; }
+					case 2: {_cur->Pro *= __Pro; break; }
+					}
+					_cur->Attr += to_string(i);
+					node.control_strategy(_cur);
+					node.control_waterlevel(_cur);
+					q_next.push(_cur);
+				}
+				else
+				{
+					if (_pre->is[i - 1])
+					{
+						_cur = node.inherit(_pre);
+						_cur->Pro *= Pro_non;
+						_cur->Attr += to_string(i);
+						_cur->is[i - 1] = false;
+						_cur->State[i - 1] = !_cur->State[i - 1];
+						node.control_strategy(_cur);
+						node.control_waterlevel(_cur);
+						q_next.push(_cur);
+					}
+				}
+			}
+			if ((_pre->waterLevel > -3) && (_pre->waterLevel < 3))
+					//if (!((_pre->State[1] == false) && (_pre->State[2] == false) && (_pre->State[3] == false)))
+				node.print(_pre, output, node.temp_count);
+			delete _pre;
+		}
+		swap(q_cur, q_next);
+	}
+	output.close();
+	return 0;
+}
+```
